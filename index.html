@@ -28,7 +28,7 @@
       min-height: 100vh;
       padding: 20px;
       margin: 0;
-      overflow-y: auto; /* Memungkinkan scrolling */
+      overflow-y: auto;
       overflow-x: hidden;
       position: relative;
     }
@@ -57,17 +57,18 @@
     h1 {
       font-size: 2.4rem;
       margin-bottom: 20px;
-      background: linear-gradient(90deg, var(--primary-accent), var(--secondary-accent));
+      /* Perubahan utama di sini: Menggeser gradien */
+      background: linear-gradient(90deg, var(--secondary-accent) 20%, var(--primary-accent) 80%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      text-shadow: 0 0 18px var(--glow-color);
+      text-shadow: 0 0 8px var(--glow-color);
       font-weight: 700;
-      animation: pulse 2s infinite alternate;
+      animation: pulse 4s infinite alternate;
       text-align: center;
     }
     @keyframes pulse {
-      0% { text-shadow: 0 0 10px var(--glow-color); }
-      100% { text-shadow: 0 0 20px var(--glow-color), 0 0 35px var(--glow-color); }
+      0% { text-shadow: 0 0 5px var(--glow-color); }
+      100% { text-shadow: 0 0 15px var(--glow-color), 0 0 25px var(--glow-color); }
     }
     .container {
       background: var(--card-bg);
@@ -75,8 +76,8 @@
       border-radius: 28px;
       box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6);
       max-width: 450px;
-      width: 100%; /* Menjamin lebar yang konsisten */
-      box-sizing: border-box; /* Memastikan padding tidak menambah lebar */
+      width: 100%;
+      box-sizing: border-box;
       text-align: center;
       border: 1px solid var(--border-color);
       position: relative;
@@ -92,7 +93,7 @@
       font-size: 1.05rem;
       background: #2a2a4d;
       color: var(--text-color);
-      box-sizing: border-box; /* Memperbaiki masalah lebar */
+      box-sizing: border-box;
     }
     input::placeholder {
       color: #9a9abf;
@@ -209,7 +210,6 @@
       resultDiv.innerHTML = '<div class="loader"></div><p>Sedang membuat quote...</p>';
       const apiUrl = `/api/generate?text=${sanitizedMessage}`;
 
-      // Menggunakan Fetch API untuk mendapatkan ukuran file
       fetch(apiUrl)
         .then(response => {
           if (!response.ok) {
