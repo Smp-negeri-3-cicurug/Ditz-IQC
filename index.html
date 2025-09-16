@@ -28,7 +28,8 @@
       min-height: 100vh;
       padding: 20px;
       margin: 0;
-      overflow: hidden;
+      overflow-y: auto; /* Memungkinkan scrolling */
+      overflow-x: hidden;
       position: relative;
     }
 
@@ -74,6 +75,8 @@
       border-radius: 28px;
       box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6);
       max-width: 450px;
+      width: 100%; /* Menjamin lebar yang konsisten */
+      box-sizing: border-box; /* Memastikan padding tidak menambah lebar */
       text-align: center;
       border: 1px solid var(--border-color);
       position: relative;
@@ -89,6 +92,10 @@
       font-size: 1.05rem;
       background: #2a2a4d;
       color: var(--text-color);
+      box-sizing: border-box; /* Memperbaiki masalah lebar */
+    }
+    input::placeholder {
+      color: #9a9abf;
     }
     input:focus {
       border-color: var(--secondary-accent);
@@ -103,10 +110,24 @@
       font-size: 1.15rem;
       color: #ffffff;
       font-weight: 600;
+      transition: transform 0.2s, box-shadow 0.3s;
+    }
+    button:hover {
+      transform: scale(1.06);
+      box-shadow: 0 0 22px rgba(106, 5, 173, 0.5);
     }
     .result {
       margin-top: 35px;
       min-height: 160px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .result p {
+      margin-bottom: 18px;
+      font-size: 1.15rem;
+      color: #c0c0e0;
     }
     .result img {
       max-width: 300px;
@@ -118,7 +139,9 @@
       opacity: 0;
       transition: opacity 0.6s ease-in-out;
     }
-    .result img.loaded { opacity: 1; }
+    .result img.loaded { 
+      opacity: 1; 
+    }
     .loader {
       border: 6px solid #333;
       border-top: 6px solid var(--primary-accent);
@@ -141,6 +164,16 @@
       color: white;
       text-decoration: none;
       font-weight: 600;
+      transition: 0.3s ease-in-out;
+    }
+    .download-btn:hover {
+      box-shadow: 0 0 22px rgba(46, 134, 222, 0.6);
+      transform: scale(1.07);
+    }
+    .file-size {
+      font-size: 0.9em;
+      color: #a0a0c0;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -154,6 +187,15 @@
   </div>
 
   <script>
+    function formatBytes(bytes, decimals = 2) {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+
     function generateImage() {
       const message = document.getElementById("message").value.trim();
       const resultDiv = document.getElementById("result");
@@ -167,20 +209,38 @@
       resultDiv.innerHTML = '<div class="loader"></div><p>Sedang membuat quote...</p>';
       const apiUrl = `/api/generate?text=${sanitizedMessage}`;
 
-      const img = new Image();
-      img.src = apiUrl;
-      img.alt = "Generated Image";
-      img.onload = () => {
-        resultDiv.innerHTML = `
-          <p>Generate Selesai!</p>
-          <img src="${apiUrl}" alt="Generated Image" class="loaded">
-          <br>
-          <a class="download-btn" href="${apiUrl}" download="iPhone_Quoted.png">Unduh Gambar</a>
-        `;
-      };
-      img.onerror = () => {
-        resultDiv.innerHTML = '<p style="color: red;">Gagal memuat gambar. Coba lagi.</p>';
-      };
+      // Menggunakan Fetch API untuk mendapatkan ukuran file
+      fetch(apiUrl)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Gagal mendapatkan gambar.');
+          }
+          return response.blob();
+        })
+        .then(blob => {
+          const fileUrl = URL.createObjectURL(blob);
+          const fileSize = blob.size;
+          const formattedSize = formatBytes(fileSize);
+
+          const img = new Image();
+          img.src = fileUrl;
+          img.alt = "Generated Image";
+          img.onload = () => {
+            resultDiv.innerHTML = `
+              <p>Generate Selesai!</p>
+              <img src="${fileUrl}" alt="Generated Image" class="loaded">
+              <p class="file-size">Ukuran file: ${formattedSize}</p>
+              <a class="download-btn" href="${fileUrl}" download="iPhone_Quoted.png">Unduh Gambar</a>
+            `;
+          };
+          img.onerror = () => {
+            resultDiv.innerHTML = '<p style="color: red;">Gagal memuat gambar. Coba lagi.</p>';
+          };
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          resultDiv.innerHTML = `<p style="color: red;">${error.message}</p>`;
+        });
     }
 
     document.addEventListener('DOMContentLoaded', () => {
