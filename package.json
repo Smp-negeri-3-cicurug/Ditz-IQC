@@ -5,9 +5,8 @@
   "scripts": {
     "dev": "vercel dev",
     "start": "vercel dev",
-    "build": "echo 'Nothing to build'"
+    "build": ""
   },
   "dependencies": {},
-  "devDependencies": {},
   "license": "MIT"
 }
