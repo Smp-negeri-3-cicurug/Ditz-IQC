@@ -1,0 +1,13 @@
+{
+  "name": "iphone-quoted-generator",
+  "version": "1.0.0",
+  "description": "iPhone Quoted Generator - running on Vercel Edge Runtime",
+  "scripts": {
+    "dev": "vercel dev",
+    "start": "vercel dev",
+    "build": "echo 'Nothing to build'"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "license": "MIT"
+}
